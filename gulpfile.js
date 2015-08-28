@@ -5,11 +5,13 @@ var rename      = require('gulp-rename');
 var sass        = require('gulp-sass');
 var uglify      = require('gulp-uglify');
 var jade        = require('gulp-jade');
-
+var react       = require('gulp-react');
 
 gulp.task('js', function () {
 
     return gulp.src('resources/js/*.js')
+    .pipe(react())
+    .on('error', console.log.bind(console))
     .pipe(gulp.dest('public/js/'));
     /*
     return gulp.src('resources/js/*.js')

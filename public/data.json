@@ -1,0 +1,32 @@
+{
+  "monsters": {
+    "fields":[
+      {
+        "name": "Name",
+        "width": 4
+      },
+      {
+        "name": "Is cool",
+        "width": 8
+      }
+    ],
+    "rows": [
+      {
+        "Name": "Dog",
+        "Is cool": "Yeah"
+      },
+      {
+        "Name": "Cat",
+        "Is cool": "Mostly"
+      }
+    ]
+  },
+  "corpses":  {
+    "fields":[],
+    "rows": []
+  },
+  "commands": {
+    "fields":[],
+    "rows": []
+  }
+}
