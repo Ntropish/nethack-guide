@@ -13,8 +13,9 @@ $(document).on('ready', function(){
       return {
         currentTable: 'default',
         data: data,
-        SearchText: '',
-        SearchField: ''
+        searchText: '',
+        searchField: '',
+        sortByField: ''
       };
     },
     componentDidMount: function() {
@@ -72,14 +73,33 @@ $(document).on('ready', function(){
           searchText={this.state.searchText}
           searchField={this.state.searchField}/>
       }
-
-
       return(
         <div>
-          <button onClick={this.changeTable} data-guide="commands">Commands</button>
-          <button onClick={this.changeTable} data-guide="corpses">Corpses</button>
-          <button onClick={this.changeTable} data-guide="monsters">Monsters</button>
-          {lowerRegion}
+          <div className="row">
+            <div className="guide-select btn-group btn-group-justified">
+              <div className="btn-group">
+                <button
+                  onClick={this.changeTable}
+                  data-guide="commands"
+                  className="btn">Commands</button>
+              </div>
+              <div className="btn-group">
+                <button
+                  onClick={this.changeTable}
+                  data-guide="corpses"
+                  className="btn">Corpses</button>
+              </div>
+              <div className="btn-group">
+                <button
+                  onClick={this.changeTable}
+                  data-guide="monsters"
+                  className="btn">Monsters</button>
+              </div>
+            </div>
+          </div>
+          <div className="row">
+            {lowerRegion}
+          </div>
         </div>
       )
     }
@@ -90,7 +110,7 @@ $(document).on('ready', function(){
   var SearchableTable = React.createClass({
     render: function() {
       return(
-        <div>
+        <div className="col-lg-8">
           <SearchBar
           setSearchText={this.props.setSearchText}
           searchText={this.props.searchText}/>
@@ -112,14 +132,29 @@ $(document).on('ready', function(){
         this.refs.searchInput.getDOMNode().value
       );
     },
+    clearInput: function() {
+      this.props.setSearchText('');
+    },
     render: function() {
       return(
-        <input
-          type="text"
-          placeholder="Search..."
-          ref="searchInput"
-          value={this.props.searchText}
-          onChange={this.handleInput}/>
+        <div className="input-group">
+
+          <input
+            className="form-control"
+            type="text"
+            placeholder="Search..."
+            ref="searchInput"
+            value={this.props.searchText}
+            onChange={this.handleInput}/>
+
+            <span className="input-group-btn">
+              <button
+                className="btn btn-danger"
+                type="button"
+                onClick={this.clearInput}>Clear</button>
+            </span>
+
+        </div>
       )
     }
   });
@@ -138,8 +173,11 @@ $(document).on('ready', function(){
 
       this.props.fields.forEach(function(field){
         fieldButtons.push(
-          <th key={field.name}>
+          <th
+            key={field.name}
+            className="open-inside">
             <button
+              className="fill"
               onClick={this.handleInput}
               data-field-name={field.name}>
               {field.name}
@@ -182,7 +220,7 @@ $(document).on('ready', function(){
       }.bind(this));
 
       return(
-        <table>
+        <table className="table table-hover table-condensed">
           <TableHeader
             setSearchField={this.props.setSearchField}
             fields={this.props.guideData.fields}/>
