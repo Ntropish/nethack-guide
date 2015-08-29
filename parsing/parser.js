@@ -7,6 +7,8 @@ var tablesAsJson = tabletojson.convert(html);
 
 var json = tablesAsJson[process.argv[4]];
 
+
+
 fs.writeFile(process.argv[3], JSON.stringify(json), function(err){
   if (err) {
     console.log(err);

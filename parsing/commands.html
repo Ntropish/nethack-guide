@@ -1,0 +1,182 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <title>NetHack keyboard commands</title>
+    <style type="text/css">
+        /* Example styling, though this is the color pattern of part of my website :P */
+
+        body {background-color:#283446; color: #CBC8BF;font-family: arial}
+        body.nethack {background-color:#283446; color: #D68732;font-family: arial}
+        a:link {color: #D68732}
+        a:visited {color: #D68732}
+        div.title {font-family: arial; font-size:120%; font-weight:bold;}
+        div.regnusTxt {font-style:italic;}
+        th{color:#CBC8BF;}
+
+    </style>
+</head>
+<body class=nethack>
+<a href="./netHack_records.php">to neuzd's NetHack Hall of Fame</a><br><br>
+
+<!--
+y k u   7 8 9   Move commands:
+ \|/     \|/            yuhjklbn: go one step in specified direction
+h-.-l   4-.-6           YUHJKLBN: go in specified direction until you
+ /|\     /|\                        hit a wall or run into something
+b j n   1 2 3           g<dir>:   run in direction <dir> until something
+      numberpad                     interesting is seen
+                        G<dir>,   same, except a branching corridor isn't
+ <  up                  ^<dir>:     considered interesting (the ^ in this
+                                    case means the Control key, not a caret)
+ >  down                m<dir>:   move without picking up objects/fighting
+                        F<dir>:   fight even if you don't sense a monster
+                If the number_pad option is set, the number keys move instead.
+                Depending on the platform, Shift number (on the numberpad),
+                Meta number, or Alt number will invoke the YUHJKLBN commands.
+                Control <dir> may or may not work when number_pad is enabled,
+                depending on the platform's capabilities.
+-->
+<table border=1>
+	<tr><th colspan=3>General commands:</th></tr>
+	<tr><td>?       </td><td> help</td><td>    display one of several informative texts</td></tr>
+	<tr><td>#quit  </td><td> quit</td><td>    end the game without saving current game</td></tr>
+	<tr><td>S      </td><td> save   </td><td> save the game (to be continued later) and exit</td></tr>
+	<tr><td>!      </td><td> sh      </td><td>escape to some SHELL (if allowed)</td></tr>
+	<tr><td>^Z     </td><td> suspend </td><td>suspend the game (independent of your current suspend char)</td></tr>
+	<tr><td>O     </td><td>  options </td><td>set options</td></tr>
+	<tr><td>/     </td><td>  whatis  </td><td>tell what a map symbol represents</td></tr>
+	<tr><td>\     </td><td>  known   </td><td>display list of what's been discovered</td></tr>
+	<tr><td>v     </td><td>  version </td><td>display version number</td></tr>
+	<tr><td>V     </td><td>  history </td><td>display game history</td></tr>
+	<tr><td>X     </td><td>  explore </td><td>switch the game to explore (discovery) mode</td></tr>
+	<tr><td>^A    </td><td>  again  </td><td> redo the previous command (^A denotes the keystroke CTRL-A)</td></tr>
+	<tr><td>^R    </td><td>  redraw  </td><td>redraw the screen</td></tr>
+	<tr><td>^P    </td><td>  prevmsg </td><td>repeat previous message (subsequent ^P's repeat earlier ones)</td></tr>
+	<tr><td>#       </td><td>        </td><td>introduces an extended command (#? for a list of them)</td></tr>
+</table>
+
+<BR>
+<table border=1>
+	<tr><th colspan=3>Game commands:</th></tr>
+	<tr><td>^D     </td><td>  kick    </td><td> kick (a door, or something else) </td></tr>
+	<tr><td>^T </td><td>      'port   </td><td> teleport (if you can) </td></tr>
+	<tr><td>^X   </td><td>    show    </td><td> show your attributes </td></tr>
+	<tr><td>a    </td><td>    apply   </td><td> apply or use a tool (pick-axe, key, camera, etc.) </td></tr>
+	<tr><td>A    </td><td>    armor   </td><td> take off all armor </td></tr>
+	<tr><td>c   </td><td>     close  </td><td>  close a door </td></tr>
+	<tr><td>C   </td><td>     call   </td><td>  name an individual monster (ex. baptize your dog) </td></tr>
+	<tr><td>d    </td><td>    drop   </td><td>  drop an object.  d7a:  drop seven items of object 'a' </td></tr>
+	<tr><td>D   </td><td>     Drop  </td><td>   drop selected types of objects </td></tr>
+	<tr><td>e   </td><td>     eat    </td><td>  eat something </td></tr>
+	<tr><td>E   </td><td>     engrave </td><td> write a message in the dust on the floor  (E-  use fingers) </td></tr>
+	<tr><td>f   </td><td>     fire  </td><td>   fire ammunition from quiver </td></tr>
+	<tr><td>F   </td><td>     fight  </td><td>  followed by direction, fight a monster </td></tr>
+	<tr><td>i    </td><td>    invent  </td><td> list your inventory (all objects you are carrying) </td></tr>
+	<tr><td>I    </td><td>    Invent  </td><td> list selected parts of your inventory<BR>
+					Iu: list unpaid objects<BR>
+					Ix: list unpaid but used up items<BR>
+					I$: count your money<BR> </td></tr>
+	<tr><td>o    </td><td>    open   </td><td>  open a door </td></tr>
+	<tr><td>p    </td><td>    pay    </td><td>  pay your bill (in a shop) </td></tr>
+	<tr><td>P    </td><td>    puton  </td><td>  put on an accessory (ring, amulet, etc) </td></tr>
+	<tr><td>q    </td><td>    quaff  </td><td>  drink something (potion, water, etc) </td></tr>
+	<tr><td>Q    </td><td>    quiver  </td><td> select ammunition for quiver </td></tr>
+	<tr><td>r    </td><td>    read   </td><td>  read a scroll or spellbook </td></tr>
+	<tr><td>R    </td><td>    remove  </td><td> remove an accessory (ring, amulet, etc) </td></tr>
+	<tr><td>s    </td><td>    search  </td><td> search for secret doors, hidden traps and monsters </td></tr>
+	<tr><td>t    </td><td>    throw   </td><td> throw or shoot a weapon </td></tr>
+	<tr><td>T     </td><td>   takeoff  </td><td>take off some armor </td></tr>
+	<tr><td>w     </td><td>   wield  </td><td>  wield a weapon  (w-  wield nothing) </td></tr>
+	<tr><td>W     </td><td>   wear   </td><td>  put on some armor </td></tr>
+	<tr><td>x     </td><td>   xchange  </td><td>swap wielded and secondary weapons </td></tr>
+	<tr><td>z     </td><td>   zap  </td><td>    zap a wand </td></tr>
+	<tr><td>Z     </td><td>   Zap  </td><td>    cast a spell </td></tr>
+	<tr><td><     </td><td>   up   </td><td>    go up the stairs </td></tr>
+	<tr><td>>     </td><td>   down   </td><td>  go down the stairs </td></tr>
+	<tr><td>^     </td><td>   trap_id  </td><td>identify a previously found trap </td></tr>
+	<tr><td>),[,=,",(     </td><td> </td><td>   ask for current items of specified symbol in use </td></tr>
+	<tr><td>*      </td><td>     </td><td>      ask for combination of ),[,=,",( all at once </td></tr>
+	<tr><td>$     </td><td>   gold    </td><td> count your gold </td></tr>
+	<tr><td>+    </td><td>    spells  </td><td> list the spells you know; also rearrange them if desired </td></tr>
+	<tr><td>_    </td><td>    travel  </td><td> move via a shortest-path algorithm to a point on the map  </td></tr>
+	<tr><td>.    </td><td>    rest   </td><td>  wait a moment </td></tr>
+	<tr><td>,    </td><td>    pickup  </td><td> pick up all you can carry </td></tr>
+	<tr><td>@    </td><td> </td><td>            toggle "pickup" (auto pickup) option on and off </td></tr>
+	<tr><td>:   </td><td>     look   </td><td>  look at what is here </td></tr>
+	<tr><td>;    </td><td>    farlook </td><td> look at what is somewhere else by selecting a map symbol </td></tr>
+</table>
+<BR>
+<table border=1>
+	<tr><th colspan=2>Extended Commands (#command) </th></tr>
+
+	<tr><td>adjust         </td><td>adjust inventory letters.</td></tr>
+	 <tr><td>   chat           </td><td>talk to someone.</td></tr>
+	 <tr><td>   conduct        </td><td>list which challenges you have adhered to.</td></tr>
+	 <tr><td>   dip            </td><td>dip an object into something.</td></tr>
+	 <tr><td>   enhance        </td><td>advance or check weapons skills.</td></tr>
+	 <tr><td>   force          </td><td>force a lock.</td></tr>
+	 <tr><td>   invoke         </td><td>invoke an object's powers.</td></tr>
+	 <tr><td>   jump           </td><td>jump to a location.</td></tr>
+	 <tr><td>   loot           </td><td>loot a box on the floor.</td></tr>
+	 <tr><td>   monster        </td><td>use a monster's special ability.</td></tr>
+	 <tr><td>   name           </td><td>name an item or type of object.</td></tr>
+	 <tr><td>   offer          </td><td>offer a sacrifice to the gods.</td></tr>
+	<tr><td>    pray           </td><td>pray to the gods for help.</td></tr>
+	 <tr><td>   quit           </td><td>exit without saving current game.</td></tr>
+	 <tr><td>   ride           </td><td>ride (or stop riding) a monster.</td></tr>
+	<tr><td>    rub            </td><td>rub a lamp or a stone.</td></tr>
+	<tr><td>    sit            </td><td>sit down.</td></tr>
+	<tr><td>    turn           </td><td>turn undead.</td></tr>
+	<tr><td>twoweapon      </td><td>toggle two-weapon combat.</td></tr>
+	<tr><td>    untrap         </td><td>untrap something.</td></tr>
+	 <tr><td>   version        </td><td>list compile time options for this version of NetHack.</td></tr>
+	 <tr><td>   wipe           </td><td>wipe off your face.</td></tr>
+	 <tr><td>   ?              </td><td>get this list of extended commands.</td></tr>
+</table>
+
+<BR>
+<table border=1>
+	<tr><th colspan=3>number_pad commands:</th></tr>
+	<tr><td>n         </td><td></td><td>      followed by number of times to repeat the next command </td></tr>
+	<tr><td>h   </td><td>    help  </td><td>  display one of several informative texts, like '?' </td></tr>
+	<tr><td>j   </td><td>    jump   </td><td> jump to another location </td></tr>
+	<tr><td>k   </td><td>    kick   </td><td> kick something (usually a door) </td></tr>
+	<tr><td>l   </td><td>    loot  </td><td>  loot a box on the floor </td></tr>
+	<tr><td>N   </td><td>    name  </td><td>  name an item or type of object </td></tr>
+	<tr><td>u   </td><td>    untrap </td><td>untrap something (usually a trapped object) </td></tr>
+</table>
+
+
+<BR>
+<table border=1>
+	<tr><th colspan=3>Meta-key keyboards commands:</th></tr>
+
+<tr><td>M-?      </td><td> </td><td>        Display extended command help (if the platform allows this)  </td></tr>
+<tr><td>M-2    </td><td>  twoweapon  </td><td>toggle two-weapon combat (unless number_pad is enabled)  </td></tr>
+<tr><td>M-a    </td><td>  adjust </td><td> adjust inventory letters </td></tr>
+<tr><td>M-c    </td><td>  chat   </td><td>  talk to someone  </td></tr>
+<tr><td>M-d    </td><td>  dip </td><td>     dip an object into something </td></tr>
+<tr><td>M-e    </td><td>  enhance </td><td> advance or check weapons skills  </td></tr>
+<tr><td>M-f   </td><td>   force </td><td>   force a lock  </td></tr>
+<tr><td>M-i   </td><td>   invoke  </td><td> invoke an object's special powers  </td></tr>
+<tr><td>M-j  </td><td>    jump  </td><td>   jump to another location </td></tr>
+<tr><td>M-l   </td><td>   loot </td><td>    loot a box on the floor </td></tr>
+<tr><td>M-m   </td><td>   monster </td><td> use a monster's special ability </td></tr>
+<tr><td>M-n   </td><td>   name  </td><td>   name an item or type of object </td></tr>
+<tr><td>M-o   </td><td>   offer  </td><td>  offer a sacrifice to the gods </td></tr>
+<tr><td>M-p   </td><td>   pray  </td><td>   pray to the gods for help </td></tr>
+<tr><td>M-q   </td><td>   quit </td><td>    stop playing </td></tr>
+<tr><td>M-r   </td><td>   rub    </td><td>  rub a lamp or a stone </td></tr>
+<tr><td>M-s   </td><td>   sit    </td><td>  sit down </td></tr>
+<tr><td>M-t   </td><td>   turn   </td><td>  turn undead </td></tr>
+<tr><td>M-u   </td><td>   untrap  </td><td> untrap something </td></tr>
+<tr><td>M-v    </td><td>  version </td><td> print compile time options for this version </td></tr>
+<tr><td>M-w    </td><td>  wipe   </td><td> wipe off your face </td></tr>
+
+</table>
+
+</body>
+</html>
