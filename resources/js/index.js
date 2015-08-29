@@ -20,7 +20,7 @@ $(document).on('ready', function(){
     },
     componentDidMount: function() {
       $.ajax({
-        url: '/data.json',
+        url: './data.json',
         dataType: 'json',
         success: function(response){
           this.setState({data: response});
