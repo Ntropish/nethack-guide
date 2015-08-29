@@ -120,7 +120,7 @@ $(document).on('ready', function(){
   var SearchableTable = React.createClass({displayName: "SearchableTable",
     render: function() {
       return(
-        React.createElement("div", {className: "col-lg-8"}, 
+        React.createElement("div", {className: "col-lg-12"}, 
           React.createElement(SearchBar, {
           setSearchText: this.props.setSearchText, 
           searchText: this.props.searchText}), 
@@ -255,7 +255,6 @@ $(document).on('ready', function(){
       )
     }
   });
-
 
   var TableHeader = React.createClass({displayName: "TableHeader",
     handleSortSelect: function(e) {
