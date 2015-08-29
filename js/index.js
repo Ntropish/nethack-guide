@@ -13,8 +13,9 @@ $(document).on('ready', function(){
       return {
         currentTable: 'default',
         data: data,
-        SearchText: '',
-        SearchField: ''
+        searchText: '',
+        searchField: '',
+        sortByField: ''
       };
     },
     componentDidMount: function() {
@@ -72,14 +73,33 @@ $(document).on('ready', function(){
           searchText: this.state.searchText, 
           searchField: this.state.searchField})
       }
-
-
       return(
         React.createElement("div", null, 
-          React.createElement("button", {onClick: this.changeTable, "data-guide": "commands"}, "Commands"), 
-          React.createElement("button", {onClick: this.changeTable, "data-guide": "corpses"}, "Corpses"), 
-          React.createElement("button", {onClick: this.changeTable, "data-guide": "monsters"}, "Monsters"), 
-          lowerRegion
+          React.createElement("div", {className: "row"}, 
+            React.createElement("div", {className: "guide-select btn-group btn-group-justified"}, 
+              React.createElement("div", {className: "btn-group"}, 
+                React.createElement("button", {
+                  onClick: this.changeTable, 
+                  "data-guide": "commands", 
+                  className: "btn"}, "Commands")
+              ), 
+              React.createElement("div", {className: "btn-group"}, 
+                React.createElement("button", {
+                  onClick: this.changeTable, 
+                  "data-guide": "corpses", 
+                  className: "btn"}, "Corpses")
+              ), 
+              React.createElement("div", {className: "btn-group"}, 
+                React.createElement("button", {
+                  onClick: this.changeTable, 
+                  "data-guide": "monsters", 
+                  className: "btn"}, "Monsters")
+              )
+            )
+          ), 
+          React.createElement("div", {className: "row"}, 
+            lowerRegion
+          )
         )
       )
     }
@@ -90,7 +110,7 @@ $(document).on('ready', function(){
   var SearchableTable = React.createClass({displayName: "SearchableTable",
     render: function() {
       return(
-        React.createElement("div", null, 
+        React.createElement("div", {className: "col-lg-8"}, 
           React.createElement(SearchBar, {
           setSearchText: this.props.setSearchText, 
           searchText: this.props.searchText}), 
@@ -112,14 +132,29 @@ $(document).on('ready', function(){
         this.refs.searchInput.getDOMNode().value
       );
     },
+    clearInput: function() {
+      this.props.setSearchText('');
+    },
     render: function() {
       return(
-        React.createElement("input", {
-          type: "text", 
-          placeholder: "Search...", 
-          ref: "searchInput", 
-          value: this.props.searchText, 
-          onChange: this.handleInput})
+        React.createElement("div", {className: "input-group"}, 
+
+          React.createElement("input", {
+            className: "form-control", 
+            type: "text", 
+            placeholder: "Search...", 
+            ref: "searchInput", 
+            value: this.props.searchText, 
+            onChange: this.handleInput}), 
+
+            React.createElement("span", {className: "input-group-btn"}, 
+              React.createElement("button", {
+                className: "btn btn-danger", 
+                type: "button", 
+                onClick: this.clearInput}, "Clear")
+            )
+
+        )
       )
     }
   });
@@ -138,8 +173,11 @@ $(document).on('ready', function(){
 
       this.props.fields.forEach(function(field){
         fieldButtons.push(
-          React.createElement("th", {key: field.name}, 
+          React.createElement("th", {
+            key: field.name, 
+            className: "open-inside"}, 
             React.createElement("button", {
+              className: "fill", 
               onClick: this.handleInput, 
               "data-field-name": field.name}, 
               field.name
@@ -182,7 +220,7 @@ $(document).on('ready', function(){
       }.bind(this));
 
       return(
-        React.createElement("table", null, 
+        React.createElement("table", {className: "table table-hover table-condensed"}, 
           React.createElement(TableHeader, {
             setSearchField: this.props.setSearchField, 
             fields: this.props.guideData.fields}), 
