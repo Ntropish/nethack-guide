@@ -70,7 +70,13 @@ $(document).on('ready', function(){
     render: function() {
       var lowerRegion;
       if (this.state.currentTable === 'default') {
-        lowerRegion = 'Welcome to this guide!';
+        lowerRegion =
+          React.createElement("div", {className: "splash"}, 
+            React.createElement("h1", null, " Welcome! "), 
+            React.createElement("h4", null, " Pick a guide, then: "), 
+            React.createElement("p", null, " Search based on table field to find the information you need fast. ")
+
+          )
       } else if (this.state.currentTable === 'error') {
         lowerRegion = 'Oops, there was an error!';
       } else {

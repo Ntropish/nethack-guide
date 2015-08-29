@@ -70,7 +70,13 @@ $(document).on('ready', function(){
     render: function() {
       var lowerRegion;
       if (this.state.currentTable === 'default') {
-        lowerRegion = 'Welcome to this guide!';
+        lowerRegion =
+          <div className="splash">
+            <h1> Welcome! </h1>
+            <h4> Pick a guide, then: </h4>
+            <p> Search based on table field to find the information you need fast. </p>
+
+          </div>
       } else if (this.state.currentTable === 'error') {
         lowerRegion = 'Oops, there was an error!';
       } else {
