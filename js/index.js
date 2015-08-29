@@ -65,7 +65,6 @@ $(document).on('ready', function(){
       this.setState({searchField: fieldName});
     },
     setSorting: function(sorting) {
-      console.log(sorting);
       this.setState({sorting: sorting});
     },
     render: function() {
