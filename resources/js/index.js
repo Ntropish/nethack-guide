@@ -120,7 +120,7 @@ $(document).on('ready', function(){
   var SearchableTable = React.createClass({
     render: function() {
       return(
-        <div className="col-lg-8">
+        <div className="col-lg-12">
           <SearchBar
           setSearchText={this.props.setSearchText}
           searchText={this.props.searchText}/>
@@ -255,7 +255,6 @@ $(document).on('ready', function(){
       )
     }
   });
-
 
   var TableHeader = React.createClass({
     handleSortSelect: function(e) {
