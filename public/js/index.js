@@ -65,6 +65,7 @@ $(document).on('ready', function(){
       this.setState({searchField: fieldName});
     },
     setSorting: function(sorting) {
+      console.log(sorting);
       this.setState({sorting: sorting});
     },
     render: function() {
@@ -74,7 +75,7 @@ $(document).on('ready', function(){
           React.createElement("div", {className: "splash"}, 
             React.createElement("h1", null, " Welcome "), 
             React.createElement("h4", null, " Pick a guide, then: "), 
-            React.createElement("h5", null, " Search based on table field to find the information you need fast! ")
+            React.createElement("h5", null, " Quickly find information by picking a column to search ")
 
           )
       } else if (this.state.currentTable === 'error') {
@@ -329,7 +330,6 @@ $(document).on('ready', function(){
 
   var TableHeader = React.createClass({displayName: "TableHeader",
     handleSortSelect: function(field, sort) {
-      //e.preventDefault();
 
       var sorting = this.props.sorting;
 
@@ -349,7 +349,7 @@ $(document).on('ready', function(){
         var sortingArrow = '';
         if (field.name === this.props.sorting.field) {
           sortingArrow = this.props.sorting.ascending ?
-            React.createElement("i", {className: "fa fa-caret-uo"}) :
+            React.createElement("i", {className: "fa fa-caret-up"}) :
             React.createElement("i", {className: "fa fa-caret-down"});
         }
         headers.push(
