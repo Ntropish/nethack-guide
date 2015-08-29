@@ -1,11 +1,11 @@
-* {
-  color: #222; }
-
 table {
   table-layout: fixed; }
 
 .guide-select {
   margin-bottom: 3em; }
+
+.table-header {
+  text-align: center; }
 
 .field-selecting-th.caved-in {
   background-color: #ccc;
@@ -31,3 +31,63 @@ table {
 
 .clickable-header:hover {
   background-color: #ddd; }
+
+.clr-blue {
+  background-color: #000;
+  color: #0000AA; }
+
+.clr-green {
+  background-color: #000;
+  color: #00AA00; }
+
+.clr-cyan {
+  background-color: #000;
+  color: #00AAAA; }
+
+.clr-red {
+  background-color: #000;
+  color: #AA0000; }
+
+.clr-magenta {
+  background-color: #000;
+  color: #AA00AA; }
+
+.clr-brown {
+  background-color: #000;
+  color: #AA5500; }
+
+.clr-lightgray {
+  background-color: #000;
+  color: #AAAAAA; }
+
+.clr-darkgray {
+  background-color: #000;
+  color: #555555; }
+
+.clr-brightblue {
+  background-color: #000;
+  color: #5555FF; }
+
+.clr-brightgreen {
+  background-color: #000;
+  color: #55FF55; }
+
+.clr-brightcyan {
+  background-color: #000;
+  color: #55FFFF; }
+
+.clr-orange {
+  background-color: #000;
+  color: #FF5555; }
+
+.clr-brightmagenta {
+  background-color: #000;
+  color: #FF55FF; }
+
+.clr-yellow {
+  background-color: #000;
+  color: #FFFF55; }
+
+.clr-white {
+  background-color: #000;
+  color: #FFFFFF; }
