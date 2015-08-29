@@ -72,9 +72,9 @@ $(document).on('ready', function(){
       if (this.state.currentTable === 'default') {
         lowerRegion =
           <div className="splash">
-            <h1> Welcome! </h1>
+            <h1> Welcome </h1>
             <h4> Pick a guide, then: </h4>
-            <p> Search based on table field to find the information you need fast. </p>
+            <h5> Search based on table field to find the information you need fast! </h5>
 
           </div>
       } else if (this.state.currentTable === 'error') {
