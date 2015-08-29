@@ -15,7 +15,7 @@ $(document).on('ready', function(){
         data: data,
         searchText: '',
         searchField: '',
-        sorting: {field: '', ascending: true}
+        sorting: {field: '', ascending: false}
       };
     },
     componentDidMount: function() {
@@ -55,7 +55,8 @@ $(document).on('ready', function(){
       // Set default sorting
       this.setSorting({
         field: this.state.data[table].fields[0].name,
-        ascending: true});
+        ascending: false,
+        sort: this.state.data[table].fields[0].sort});
     },
     setSearchText: function(text){
       this.setState({searchText: text});
@@ -83,6 +84,17 @@ $(document).on('ready', function(){
           searchText={this.state.searchText}
           searchField={this.state.searchField}/>
       }
+      var header;
+      if (this.state.data[this.state.currentTable]) {
+        header =
+        <div className="table-header">
+          <h3>{this.state.data[this.state.currentTable].header.title}</h3>
+          <a href={this.state.data[this.state.currentTable].header.source}>
+            <h5>Source at {this.state.data[this.state.currentTable].header.sourceName}</h5>
+          </a>
+        </div>
+      }
+
       return(
         <div>
           <div className="row">
@@ -107,6 +119,7 @@ $(document).on('ready', function(){
               </div>
             </div>
           </div>
+          {header}
           <div className="row">
             {lowerRegion}
           </div>
@@ -135,7 +148,6 @@ $(document).on('ready', function(){
       )
     }
   });
-
 
 
   var SearchBar = React.createClass({
@@ -170,7 +182,6 @@ $(document).on('ready', function(){
       )
     }
   });
-
 
 
   var SearchFieldSelect = React.createClass({
@@ -216,10 +227,54 @@ $(document).on('ready', function(){
 
       this.props.guideData.rows
         .sort(function(a, b){
+          var one = $('<span>'+a[this.props.sorting.field]+'</span>').text();
+          var two = $('<span>'+b[this.props.sorting.field]+'</span>').text();
+
+          if (one && !two) {
+            if (this.props.sorting.ascending) {
+              return 1;
+            } else {
+              return -1;
+            }
+          }
+
+          if (two && !one) {
+            if (this.props.sorting.ascending) {
+              return -1;
+            } else {
+              return 1;
+            }
+          }
+
+          if (!one && !two) {
+            return 0;
+          }
+
+          if (this.props.sorting.sort === 'numeric') {
+
+            var oneNumber = +(one.match(/\d+/)[0]);
+            var twoNumber = +(two.match(/\d+/)[0]);
+            if (this.props.sorting.ascending) {
+              if (oneNumber > twoNumber) {
+                return 1;
+              } else {
+                return -1;
+              }
+            } else {
+              if (oneNumber > twoNumber) {
+                return -1;
+              } else {
+                return 1;
+              }
+            }
+          } else if (this.props.sorting.sort === 'none') {
+            return 0;
+          }
+
           if (this.props.sorting.ascending) {
-            return a[this.props.sorting.field] > b[this.props.sorting.field];
+            return two.localeCompare(one);
           } else {
-            return a[this.props.sorting.field] < b[this.props.sorting.field];
+            return one.localeCompare(two);
           }
         }.bind(this))
         .forEach(function(row){
@@ -227,14 +282,23 @@ $(document).on('ready', function(){
         if (
               this.props.searchText
               &&
-              row[this.props.searchField].indexOf(this.props.searchText) === -1
+              // Parse out html text and check for search string
+              $('<span>'+row[this.props.searchField]+'</span>').text()
+                .indexOf(this.props.searchText) === -1
             ) {
           return;
         };
 
+        // Use the first field as the key, and the second if it exists
+        var key = row[this.props.guideData.fields[0].name] +
+          (this.props.guideData.fields[1] ?
+          row[this.props.guideData.fields[1].name] :
+          '');
+
+
         tableRows.push(
           <TableRow
-            key={row[this.props.guideData.fields[0].name]}
+            key={key}
             fields={this.props.guideData.fields}
             row={row} />
         );
@@ -256,17 +320,19 @@ $(document).on('ready', function(){
     }
   });
 
+
   var TableHeader = React.createClass({
-    handleSortSelect: function(e) {
-      var field = e.target.getAttribute('data-field-name');
+    handleSortSelect: function(field, sort) {
+      //e.preventDefault();
+
       var sorting = this.props.sorting;
 
       if (sorting.field !== field) {
-        this.props.setSorting({field: field, ascending: true});
-      } else if (sorting.ascending) {
-        this.props.setSorting({field: field, ascending: false});
+        this.props.setSorting({field: field, ascending: false, sort: sort});
+      } else if (!sorting.ascending) {
+        this.props.setSorting({field: field, ascending: true, sort: sort});
       } else {
-        this.props.setSorting({field: field, ascending: true});
+        this.props.setSorting({field: field, ascending: false, sort: sort});
       }
 
     },
@@ -277,14 +343,14 @@ $(document).on('ready', function(){
         var sortingArrow = '';
         if (field.name === this.props.sorting.field) {
           sortingArrow = this.props.sorting.ascending ?
-            <i className="fa fa-caret-down"></i> :
-            <i className="fa fa-caret-up"></i>;
+            <i className="fa fa-caret-uo"></i> :
+            <i className="fa fa-caret-down"></i>;
         }
         headers.push(
           <th
             className="clickable-header"
             key={field.name}
-            onClick={this.handleSortSelect}
+            onClick={this.handleSortSelect.bind(this, field.name, field.sort)}
             data-field-name={field.name}>
             {field.name} {sortingArrow}
           </th>
@@ -316,7 +382,7 @@ $(document).on('ready', function(){
         <tr key={this.props.row[this.props.fields[0].name]}>
           {
             this.props.fields.map(function(field){
-              return <td key={field.name}>{this.props.row[field.name]}</td>;
+              return <td key={field.name} dangerouslySetInnerHTML={{__html: this.props.row[field.name]}} />;
             }.bind(this))
           }
         </tr>
