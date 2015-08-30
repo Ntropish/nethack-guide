@@ -4,17 +4,10 @@ $(document).on('ready', function(){
   var Guide = React.createClass({displayName: "Guide",
     getInitialState: function() {
 
-      var data = {
-        monsters: {},
-        commands: {},
-        corpses:  {}
-      };
-
       return {
         currentTable: 'default',
-        data: data,
         searchText: '',
-        searchField: '',
+        searchFields: [],
         sorting: {field: '', ascending: false}
       };
     },
@@ -23,7 +16,7 @@ $(document).on('ready', function(){
         url: './data.json',
         dataType: 'json',
         success: function(response){
-          this.setState({data: response});
+          this.data = response;
         }.bind(this),
         error: function(){
           console.log('Error getting data!');
@@ -31,42 +24,57 @@ $(document).on('ready', function(){
       });
 
     },
-    changeTable: function(e) {
-      e.preventDefault();
-      var table = e.target.getAttribute('data-guide');
+    changeTable: function(tableName) {
 
       if ( // Check for errors in the data (nonexistance)
-        !this.state.data[table]
+        !this.data[tableName]
         ||
-        !this.state.data[table].fields[0]
+        !this.data[tableName].fields[0]
       ) {
         this.setState({currentTable: 'error'});
         return;
       }
       // No errors so procede with transition
-      this.setState({currentTable: table});
+      this.setState({currentTable: tableName});
 
-      // Set default field when switching to be the first field
-      this.setSearchField(this.state.data[table].fields[0].name);
+      // Get search fields for the table and update
+      this.setState({searchFields: this.data[tableName].fields});
 
       // Clear search text
       this.setSearchText('');
 
       // Set default sorting
       this.setSorting({
-        field: this.state.data[table].fields[0].name,
+        field: this.data[tableName].fields[0].name,
         ascending: false,
-        sort: this.state.data[table].fields[0].sort});
+        sort: this.data[tableName].fields[0].sort});
     },
+
     setSearchText: function(text){
       this.setState({searchText: text});
     },
-    setSearchField: function(fieldName) {
-      this.setState({searchField: fieldName});
+
+    toggleSearchField: function(fieldName) {
+
+      var fieldIndex = this.state.searchFields.map(function(field){
+          return field.name;
+        }).indexOf(fieldName);
+
+      if (fieldIndex === -1) {
+        throw new Error("Field not found.");
+      }
+
+      this.setState(function(oldState){
+        var field = oldState.searchFields[fieldIndex];
+        field.activeSearchField = !field.activeSearchField;
+        return {searchFields: oldState.searchFields};
+      });
     },
+
     setSorting: function(sorting) {
       this.setState({sorting: sorting});
     },
+
     render: function() {
       var lowerRegion;
       if (this.state.currentTable === 'default') {
@@ -83,20 +91,20 @@ $(document).on('ready', function(){
         lowerRegion = React.createElement(SearchableTable, {
           sorting: this.state.sorting, 
           setSorting: this.setSorting, 
-          guideData: this.state.data[this.state.currentTable], 
+          guideData: this.data[this.state.currentTable], 
           searchBarText: this.state.searchBarText, 
           setSearchText: this.setSearchText, 
-          setSearchField: this.setSearchField, 
+          toggleSearchField: this.toggleSearchField, 
           searchText: this.state.searchText, 
-          searchField: this.state.searchField})
+          searchFields: this.state.searchFields})
       }
       var header;
-      if (this.state.data[this.state.currentTable]) {
+      if (this.data && this.data[this.state.currentTable]) {
         header =
         React.createElement("div", {className: "table-header"}, 
-          React.createElement("h3", null, this.state.data[this.state.currentTable].header.title), 
-          React.createElement("a", {href: this.state.data[this.state.currentTable].header.source}, 
-            React.createElement("h5", null, "Source at ", this.state.data[this.state.currentTable].header.sourceName)
+          React.createElement("h3", null, this.data[this.state.currentTable].header.title), 
+          React.createElement("a", {href: this.data[this.state.currentTable].header.source}, 
+            React.createElement("h5", null, "Source at ", this.data[this.state.currentTable].header.sourceName)
           )
         )
       }
@@ -107,20 +115,17 @@ $(document).on('ready', function(){
             React.createElement("div", {className: "guide-select btn-group btn-group-justified"}, 
               React.createElement("div", {className: "btn-group"}, 
                 React.createElement("button", {
-                  onClick: this.changeTable, 
-                  "data-guide": "commands", 
+                  onClick: this.changeTable.bind(this, 'commands'), 
                   className: "btn"}, "Commands")
               ), 
               React.createElement("div", {className: "btn-group"}, 
                 React.createElement("button", {
-                  onClick: this.changeTable, 
-                  "data-guide": "corpses", 
+                  onClick: this.changeTable.bind(this, 'corpses'), 
                   className: "btn"}, "Corpses")
               ), 
               React.createElement("div", {className: "btn-group"}, 
                 React.createElement("button", {
-                  onClick: this.changeTable, 
-                  "data-guide": "monsters", 
+                  onClick: this.changeTable.bind(this, 'monsters'), 
                   className: "btn"}, "Monsters")
               )
             )
@@ -147,9 +152,9 @@ $(document).on('ready', function(){
             sorting: this.props.sorting, 
             setSorting: this.props.setSorting, 
             guideData: this.props.guideData, 
-            setSearchField: this.props.setSearchField, 
+            toggleSearchField: this.props.toggleSearchField, 
             searchText: this.props.searchText, 
-            searchField: this.props.searchField})
+            searchFields: this.props.searchFields})
         )
       )
     }
@@ -191,30 +196,32 @@ $(document).on('ready', function(){
 
 
   var SearchFieldSelect = React.createClass({displayName: "SearchFieldSelect",
-    handleInput: function(e) {
-      e.preventDefault();
-      this.props.setSearchField(
-        e.target.getAttribute('data-field-name')
-      );
+
+    handleInput: function(fieldName) {
+      this.props.toggleSearchField(fieldName);
     },
+
     render: function() {
       var fieldButtons = [];
 
-      this.props.fields.forEach(function(field){
-        var isActive = field.name === this.props.searchField;
-        var activeFieldSelect = isActive ? ' caved-in' : ''
-        var content = isActive ? React.createElement("i", {className: "fa fa-chevron-down"}) :
-          'Search by...';
+      this.props.searchFields.forEach(function(field){
+        var isActive = field.activeSearchField;
+
+        var activeClass = isActive ? ' selected' : '';
+
         fieldButtons.push(
           React.createElement("th", {
-            className: "field-selecting-th"+activeFieldSelect, 
+            className: "field-selecting-th"+activeClass, 
             key: field.name, 
-            onClick: this.handleInput, 
+            onClick: this.handleInput.bind(this, field.name), 
             "data-field-name": field.name}, 
-            content
+            React.createElement("div", null, 
+              "Search This"
+            )
           )
         )
       }.bind(this));
+
       return(
         React.createElement("div", null, 
           React.createElement("tr", null, 
@@ -229,10 +236,8 @@ $(document).on('ready', function(){
   var Table = React.createClass({displayName: "Table",
     render: function() {
 
-      var tableRows = [];
-
-      this.props.guideData.rows
-        .sort(function(a, b){
+      function sortRows(rows) {
+        return  rows.sort(function(a, b){
           var one = $('<span>'+a[this.props.sorting.field]+'</span>').text();
           var two = $('<span>'+b[this.props.sorting.field]+'</span>').text();
 
@@ -273,34 +278,68 @@ $(document).on('ready', function(){
                 return 1;
               }
             }
-          } else if (this.props.sorting.sort === 'none') {
+          } else if (this.props.sorting.sort === 'alpha') {
+            if (this.props.sorting.ascending) {
+              return two.localeCompare(one);
+            } else {
+              return one.localeCompare(two);
+            }
+          } else {
             return 0;
           }
 
-          if (this.props.sorting.ascending) {
-            return two.localeCompare(one);
-          } else {
-            return one.localeCompare(two);
-          }
-        }.bind(this))
-        .forEach(function(row){
-        // Cull out rows that don't match the search
-        if (
-              this.props.searchText
-              &&
-              // Parse out html text and check for search string
-              $('<span>'+row[this.props.searchField]+'</span>').text()
-                .indexOf(this.props.searchText) === -1
-            ) {
-          return;
-        };
 
+        }.bind(this));
+      };
+
+      function cullRows(rows) {
+        var result = [];
+        var i;
+        var row;
+
+
+        rowLoop: for (i = 0, l = rows.length; i<l; i++) {
+          row = rows[i];
+
+          fieldLoop: for (j = 0, m = this.props.searchFields.length; j<m; j++) {
+            field = this.props.searchFields[j];
+            if (!(field.activeSearchField)) {
+              continue fieldLoop;
+            }
+
+            var text = $('<span>'+row[field.name]+'</span>').text();
+            var query = this.props.searchText;
+
+            if (field.searchType === 'insensitive') {
+              text = text.toLowerCase();
+              query = query.toLowerCase();
+            }
+
+            if (text.indexOf(query) !== -1) {
+              result.push(row);
+              continue rowLoop;
+            }
+
+          }
+
+        }
+        return result;
+      };
+
+      var tableRows = [];
+
+      var rows = sortRows.call(this, this.props.guideData.rows);
+
+      if (this.props.searchText) {
+        rows = cullRows.call(this, rows);
+      }
+
+      rows.forEach(function(row){
         // Use the first field as the key, and the second if it exists
         var key = row[this.props.guideData.fields[0].name] +
           (this.props.guideData.fields[1] ?
           row[this.props.guideData.fields[1].name] :
           '');
-
 
         tableRows.push(
           React.createElement(TableRow, {
@@ -310,14 +349,14 @@ $(document).on('ready', function(){
         );
       }.bind(this));
 
+
       return(
         React.createElement("table", {className: "table table-hover table-condensed"}, 
           React.createElement(TableHeader, {
             sorting: this.props.sorting, 
             setSorting: this.props.setSorting, 
-            searchField: this.props.searchField, 
-            setSearchField: this.props.setSearchField, 
-            fields: this.props.guideData.fields}), 
+            searchFields: this.props.searchFields, 
+            toggleSearchField: this.props.toggleSearchField}), 
           React.createElement("tbody", null, 
             tableRows
           )
@@ -344,7 +383,7 @@ $(document).on('ready', function(){
     render: function() {
       var headers = [];
 
-      this.props.fields.forEach(function(field){
+      this.props.searchFields.forEach(function(field){
         var sortingArrow = '';
         if (field.name === this.props.sorting.field) {
           sortingArrow = this.props.sorting.ascending ?
@@ -367,9 +406,8 @@ $(document).on('ready', function(){
         React.createElement("thead", null, 
           React.createElement("tr", null, 
             React.createElement(SearchFieldSelect, {
-              searchField: this.props.searchField, 
-              setSearchField: this.props.setSearchField, 
-              fields: this.props.fields})
+              searchFields: this.props.searchFields, 
+              toggleSearchField: this.props.toggleSearchField})
           ), 
           React.createElement("tr", null, 
             headers
