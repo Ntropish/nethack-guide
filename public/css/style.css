@@ -23,15 +23,15 @@ table {
 .table-header {
   text-align: center; }
 
-.field-selecting-th.caved-in {
-  background-color: #ccc;
-  box-shadow: inset 0 2px 2px 2px rgba(0, 0, 0, 0.1); }
-  .field-selecting-th.caved-in:hover {
-    background-color: #ccc;
-    box-shadow: inset 0 2px 2px 2px rgba(0, 0, 0, 0.1); }
+.field-selecting-th.selected {
+  background-color: #e0ffe0;
+  color: #aaa; }
+  .field-selecting-th.selected:hover {
+    background-color: #d0f0d0; }
 
 .field-selecting-th {
-  color: #ccc;
+  box-shadow: inset 0 4px 2px -2px rgba(0, 0, 0, 0.1);
+  color: #9f9f9f;
   position: relative;
   height: 20px;
   text-align: center;
