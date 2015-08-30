@@ -36,7 +36,7 @@ gulp.task('css', function () {
 gulp.task('html', function () {
     return gulp.src(['resources/jade/*.jade'])
         .pipe( jade( {pretty: true} ) )
-        .pipe( gulp.dest('public/html/'));
+        .pipe( gulp.dest('public/'));
 });
 
 

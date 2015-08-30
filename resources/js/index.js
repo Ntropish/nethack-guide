@@ -4,17 +4,10 @@ $(document).on('ready', function(){
   var Guide = React.createClass({
     getInitialState: function() {
 
-      var data = {
-        monsters: {},
-        commands: {},
-        corpses:  {}
-      };
-
       return {
         currentTable: 'default',
-        data: data,
         searchText: '',
-        searchField: '',
+        searchFields: [],
         sorting: {field: '', ascending: false}
       };
     },
@@ -23,7 +16,7 @@ $(document).on('ready', function(){
         url: './data.json',
         dataType: 'json',
         success: function(response){
-          this.setState({data: response});
+          this.data = response;
         }.bind(this),
         error: function(){
           console.log('Error getting data!');
@@ -31,50 +24,65 @@ $(document).on('ready', function(){
       });
 
     },
-    changeTable: function(e) {
-      e.preventDefault();
-      var table = e.target.getAttribute('data-guide');
+    changeTable: function(tableName) {
 
       if ( // Check for errors in the data (nonexistance)
-        !this.state.data[table]
+        !this.data[tableName]
         ||
-        !this.state.data[table].fields[0]
+        !this.data[tableName].fields[0]
       ) {
         this.setState({currentTable: 'error'});
         return;
       }
       // No errors so procede with transition
-      this.setState({currentTable: table});
+      this.setState({currentTable: tableName});
 
-      // Set default field when switching to be the first field
-      this.setSearchField(this.state.data[table].fields[0].name);
+      // Get search fields for the table and update
+      this.setState({searchFields: this.data[tableName].fields});
 
       // Clear search text
       this.setSearchText('');
 
       // Set default sorting
       this.setSorting({
-        field: this.state.data[table].fields[0].name,
+        field: this.data[tableName].fields[0].name,
         ascending: false,
-        sort: this.state.data[table].fields[0].sort});
+        sort: this.data[tableName].fields[0].sort});
     },
+
     setSearchText: function(text){
       this.setState({searchText: text});
     },
-    setSearchField: function(fieldName) {
-      this.setState({searchField: fieldName});
+
+    toggleSearchField: function(fieldName) {
+
+      var fieldIndex = this.state.searchFields.map(function(field){
+          return field.name;
+        }).indexOf(fieldName);
+
+      if (fieldIndex === -1) {
+        throw new Error("Field not found.");
+      }
+
+      this.setState(function(oldState){
+        var field = oldState.searchFields[fieldIndex];
+        field.activeSearchField = !field.activeSearchField;
+        return {searchFields: oldState.searchFields};
+      });
     },
+
     setSorting: function(sorting) {
       this.setState({sorting: sorting});
     },
+
     render: function() {
       var lowerRegion;
       if (this.state.currentTable === 'default') {
         lowerRegion =
           <div className="splash">
-            <h1> Welcome! </h1>
+            <h1> Welcome </h1>
             <h4> Pick a guide, then: </h4>
-            <p> Search based on table field to find the information you need fast. </p>
+            <h5> Quickly find information by picking a column to search </h5>
 
           </div>
       } else if (this.state.currentTable === 'error') {
@@ -83,20 +91,20 @@ $(document).on('ready', function(){
         lowerRegion = <SearchableTable
           sorting={this.state.sorting}
           setSorting={this.setSorting}
-          guideData={this.state.data[this.state.currentTable]}
+          guideData={this.data[this.state.currentTable]}
           searchBarText={this.state.searchBarText}
           setSearchText={this.setSearchText}
-          setSearchField={this.setSearchField}
+          toggleSearchField={this.toggleSearchField}
           searchText={this.state.searchText}
-          searchField={this.state.searchField}/>
+          searchFields={this.state.searchFields}/>
       }
       var header;
-      if (this.state.data[this.state.currentTable]) {
+      if (this.data && this.data[this.state.currentTable]) {
         header =
         <div className="table-header">
-          <h3>{this.state.data[this.state.currentTable].header.title}</h3>
-          <a href={this.state.data[this.state.currentTable].header.source}>
-            <h5>Source at {this.state.data[this.state.currentTable].header.sourceName}</h5>
+          <h3>{this.data[this.state.currentTable].header.title}</h3>
+          <a href={this.data[this.state.currentTable].header.source}>
+            <h5>Source at {this.data[this.state.currentTable].header.sourceName}</h5>
           </a>
         </div>
       }
@@ -107,20 +115,17 @@ $(document).on('ready', function(){
             <div className="guide-select btn-group btn-group-justified">
               <div className="btn-group">
                 <button
-                  onClick={this.changeTable}
-                  data-guide="commands"
+                  onClick={this.changeTable.bind(this, 'commands')}
                   className="btn">Commands</button>
               </div>
               <div className="btn-group">
                 <button
-                  onClick={this.changeTable}
-                  data-guide="corpses"
+                  onClick={this.changeTable.bind(this, 'corpses')}
                   className="btn">Corpses</button>
               </div>
               <div className="btn-group">
                 <button
-                  onClick={this.changeTable}
-                  data-guide="monsters"
+                  onClick={this.changeTable.bind(this, 'monsters')}
                   className="btn">Monsters</button>
               </div>
             </div>
@@ -147,9 +152,9 @@ $(document).on('ready', function(){
             sorting={this.props.sorting}
             setSorting={this.props.setSorting}
             guideData={this.props.guideData}
-            setSearchField={this.props.setSearchField}
+            toggleSearchField={this.props.toggleSearchField}
             searchText={this.props.searchText}
-            searchField={this.props.searchField}/>
+            searchFields={this.props.searchFields}/>
         </div>
       )
     }
@@ -191,30 +196,32 @@ $(document).on('ready', function(){
 
 
   var SearchFieldSelect = React.createClass({
-    handleInput: function(e) {
-      e.preventDefault();
-      this.props.setSearchField(
-        e.target.getAttribute('data-field-name')
-      );
+
+    handleInput: function(fieldName) {
+      this.props.toggleSearchField(fieldName);
     },
+
     render: function() {
       var fieldButtons = [];
 
-      this.props.fields.forEach(function(field){
-        var isActive = field.name === this.props.searchField;
-        var activeFieldSelect = isActive ? ' caved-in' : ''
-        var content = isActive ? <i className="fa fa-chevron-down"></i> :
-          'Search by...';
+      this.props.searchFields.forEach(function(field){
+        var isActive = field.activeSearchField;
+
+        var activeClass = isActive ? ' selected' : '';
+
         fieldButtons.push(
           <th
-            className={"field-selecting-th"+activeFieldSelect}
+            className={"field-selecting-th"+activeClass}
             key={field.name}
-            onClick={this.handleInput}
+            onClick={this.handleInput.bind(this, field.name)}
             data-field-name={field.name}>
-            {content}
+            <div>
+              Search This
+            </div>
           </th>
         )
       }.bind(this));
+
       return(
         <div>
           <tr>
@@ -229,10 +236,8 @@ $(document).on('ready', function(){
   var Table = React.createClass({
     render: function() {
 
-      var tableRows = [];
-
-      this.props.guideData.rows
-        .sort(function(a, b){
+      function sortRows(rows) {
+        return  rows.sort(function(a, b){
           var one = $('<span>'+a[this.props.sorting.field]+'</span>').text();
           var two = $('<span>'+b[this.props.sorting.field]+'</span>').text();
 
@@ -273,34 +278,68 @@ $(document).on('ready', function(){
                 return 1;
               }
             }
-          } else if (this.props.sorting.sort === 'none') {
+          } else if (this.props.sorting.sort === 'alpha') {
+            if (this.props.sorting.ascending) {
+              return two.localeCompare(one);
+            } else {
+              return one.localeCompare(two);
+            }
+          } else {
             return 0;
           }
 
-          if (this.props.sorting.ascending) {
-            return two.localeCompare(one);
-          } else {
-            return one.localeCompare(two);
-          }
-        }.bind(this))
-        .forEach(function(row){
-        // Cull out rows that don't match the search
-        if (
-              this.props.searchText
-              &&
-              // Parse out html text and check for search string
-              $('<span>'+row[this.props.searchField]+'</span>').text()
-                .indexOf(this.props.searchText) === -1
-            ) {
-          return;
-        };
 
+        }.bind(this));
+      };
+
+      function cullRows(rows) {
+        var result = [];
+        var i;
+        var row;
+
+
+        rowLoop: for (i = 0, l = rows.length; i<l; i++) {
+          row = rows[i];
+
+          fieldLoop: for (j = 0, m = this.props.searchFields.length; j<m; j++) {
+            field = this.props.searchFields[j];
+            if (!(field.activeSearchField)) {
+              continue fieldLoop;
+            }
+
+            var text = $('<span>'+row[field.name]+'</span>').text();
+            var query = this.props.searchText;
+
+            if (field.searchType === 'insensitive') {
+              text = text.toLowerCase();
+              query = query.toLowerCase();
+            }
+
+            if (text.indexOf(query) !== -1) {
+              result.push(row);
+              continue rowLoop;
+            }
+
+          }
+
+        }
+        return result;
+      };
+
+      var tableRows = [];
+
+      var rows = sortRows.call(this, this.props.guideData.rows);
+
+      if (this.props.searchText) {
+        rows = cullRows.call(this, rows);
+      }
+
+      rows.forEach(function(row){
         // Use the first field as the key, and the second if it exists
         var key = row[this.props.guideData.fields[0].name] +
           (this.props.guideData.fields[1] ?
           row[this.props.guideData.fields[1].name] :
           '');
-
 
         tableRows.push(
           <TableRow
@@ -310,14 +349,14 @@ $(document).on('ready', function(){
         );
       }.bind(this));
 
+
       return(
         <table className="table table-hover table-condensed">
           <TableHeader
             sorting={this.props.sorting}
             setSorting={this.props.setSorting}
-            searchField={this.props.searchField}
-            setSearchField={this.props.setSearchField}
-            fields={this.props.guideData.fields}/>
+            searchFields={this.props.searchFields}
+            toggleSearchField={this.props.toggleSearchField}/>
           <tbody>
             {tableRows}
           </tbody>
@@ -329,7 +368,6 @@ $(document).on('ready', function(){
 
   var TableHeader = React.createClass({
     handleSortSelect: function(field, sort) {
-      //e.preventDefault();
 
       var sorting = this.props.sorting;
 
@@ -345,11 +383,11 @@ $(document).on('ready', function(){
     render: function() {
       var headers = [];
 
-      this.props.fields.forEach(function(field){
+      this.props.searchFields.forEach(function(field){
         var sortingArrow = '';
         if (field.name === this.props.sorting.field) {
           sortingArrow = this.props.sorting.ascending ?
-            <i className="fa fa-caret-uo"></i> :
+            <i className="fa fa-caret-up"></i> :
             <i className="fa fa-caret-down"></i>;
         }
         headers.push(
@@ -368,9 +406,8 @@ $(document).on('ready', function(){
         <thead>
           <tr>
             <SearchFieldSelect
-              searchField={this.props.searchField}
-              setSearchField={this.props.setSearchField}
-              fields={this.props.fields}/>
+              searchFields={this.props.searchFields}
+              toggleSearchField={this.props.toggleSearchField}/>
           </tr>
           <tr>
             {headers}
