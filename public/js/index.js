@@ -2,21 +2,78 @@ $(document).on('ready', function(){
 
 
   var Guide = React.createClass({displayName: "Guide",
+    setHash: function(isNewHistoryState){
+
+      var enabledFieldsString = '';
+      this.state.enabledFields.forEach(function(enabled){
+        enabledFieldsString += (enabled ? '1' : '0');
+      });
+
+      var hash = '#' + [
+        this.state.currentTable,
+        this.state.searchText,
+        enabledFieldsString,
+        this.state.sortingFieldIndex,
+        this.state.sortAscending
+      ].join('--');
+
+      if (isNewHistoryState) {
+        history.pushState({}, "Nethack "+this.state.currentTable, hash);
+      } else {
+        history.replaceState({}, "Nethack "+this.state.currentTable, hash);
+      }
+
+    },
+    loadHash: function(){
+      var hashValues = window.location.hash.slice(1).split('--');
+
+      if (hashValues.length !== 5) {
+        // Cancel load if the data is obviously incorrect
+        return;
+      }
+
+      var enabledFields = hashValues[2].split('').map(function(character){
+        if (character === '1') {
+          return true;
+        }
+        return false;
+      });
+
+      this.setState({
+        currentTable: hashValues[0],
+        searchText: hashValues[1],
+        enabledFields: enabledFields,
+        sortingFieldIndex: hashValues[3],
+        sortAscending: (hashValues[4] === 'true') ? true : false
+      });
+    },
     getInitialState: function() {
 
       return {
         currentTable: 'default',
         searchText: '',
-        searchFields: [],
-        sorting: {field: '', ascending: false}
+        enabledFields: [],
+        sortingFieldIndex: 0,
+        sortAscending: false
       };
     },
     componentDidMount: function() {
+      this.data = {
+        commands: {}
+      };
       $.ajax({
-        url: './data.json',
+        url: './json/data.json',
         dataType: 'json',
         success: function(response){
+
+          // Setup this event handler now, after data has loaded successfully
+          $(window).on('hashchange', this.loadHash);
+
           this.data = response;
+
+          // Load any hash now that the data is loaded
+          this.loadHash();
+
         }.bind(this),
         error: function(){
           console.log('Error getting data!');
@@ -34,45 +91,36 @@ $(document).on('ready', function(){
         this.setState({currentTable: 'error'});
         return;
       }
+
+
       // No errors so procede with transition
-      this.setState({currentTable: tableName});
 
-      // Get search fields for the table and update
-      this.setState({searchFields: this.data[tableName].fields});
+      this.setState({
+        currentTable: tableName,
+        enabledFields: this.data[tableName].fields.map(function(){return true;})
+      }, this.setHash.bind(this, true));
 
-      // Clear search text
-      this.setSearchText('');
-
-      // Set default sorting
-      this.setSorting({
-        field: this.data[tableName].fields[0].name,
-        ascending: false,
-        sort: this.data[tableName].fields[0].sort});
     },
 
     setSearchText: function(text){
-      this.setState({searchText: text});
+
+      //Remove separator used in hash
+      text = text.replace(/--/g, '-');
+
+      this.setState({searchText: text}, this.setHash.bind(this, false));
     },
 
-    toggleSearchField: function(fieldName) {
-
-      var fieldIndex = this.state.searchFields.map(function(field){
-          return field.name;
-        }).indexOf(fieldName);
-
-      if (fieldIndex === -1) {
-        throw new Error("Field not found.");
-      }
-
+    toggleSearchField: function(index) {
       this.setState(function(oldState){
-        var field = oldState.searchFields[fieldIndex];
-        field.activeSearchField = !field.activeSearchField;
-        return {searchFields: oldState.searchFields};
-      });
+        oldState.enabledFields[index] = !oldState.enabledFields[index];
+        return {searchFields: oldState.enabledFields};
+      }, this.setHash.bind(this, false));
     },
 
-    setSorting: function(sorting) {
-      this.setState({sorting: sorting});
+    setSorting: function(index, ascending) {
+      this.setState(
+        {sortingFieldIndex: index, sortAscending: ascending},
+        this.setHash.bind(this, false));
     },
 
     render: function() {
@@ -89,14 +137,14 @@ $(document).on('ready', function(){
         lowerRegion = 'Oops, there was an error!';
       } else {
         lowerRegion = React.createElement(SearchableTable, {
-          sorting: this.state.sorting, 
+          sortingFieldIndex: this.state.sortingFieldIndex, 
+          sortAscending: this.state.sortAscending, 
           setSorting: this.setSorting, 
           guideData: this.data[this.state.currentTable], 
-          searchBarText: this.state.searchBarText, 
           setSearchText: this.setSearchText, 
           toggleSearchField: this.toggleSearchField, 
           searchText: this.state.searchText, 
-          searchFields: this.state.searchFields})
+          enabledFields: this.state.enabledFields})
       }
       var header;
       if (this.data && this.data[this.state.currentTable]) {
@@ -149,12 +197,13 @@ $(document).on('ready', function(){
           setSearchText: this.props.setSearchText, 
           searchText: this.props.searchText}), 
           React.createElement(Table, {
-            sorting: this.props.sorting, 
+            sortingFieldIndex: this.props.sortingFieldIndex, 
             setSorting: this.props.setSorting, 
             guideData: this.props.guideData, 
             toggleSearchField: this.props.toggleSearchField, 
             searchText: this.props.searchText, 
-            searchFields: this.props.searchFields})
+            enabledFields: this.props.enabledFields, 
+            sortAscending: this.props.sortAscending})
         )
       )
     }
@@ -175,7 +224,7 @@ $(document).on('ready', function(){
         React.createElement("div", {className: "input-group"}, 
 
           React.createElement("input", {
-            className: "form-control", 
+            className: "form-control search-input", 
             type: "text", 
             placeholder: "Search...", 
             ref: "searchInput", 
@@ -197,15 +246,15 @@ $(document).on('ready', function(){
 
   var SearchFieldSelect = React.createClass({displayName: "SearchFieldSelect",
 
-    handleInput: function(fieldName) {
-      this.props.toggleSearchField(fieldName);
+    handleInput: function(index) {
+      this.props.toggleSearchField(index);
     },
 
     render: function() {
       var fieldButtons = [];
 
-      this.props.searchFields.forEach(function(field){
-        var isActive = field.activeSearchField;
+      this.props.fields.forEach(function(field, index){
+        var isActive = this.props.enabledFields[index];
 
         var activeClass = isActive ? ' selected' : '';
 
@@ -213,7 +262,7 @@ $(document).on('ready', function(){
           React.createElement("th", {
             className: "field-selecting-th"+activeClass, 
             key: field.name, 
-            onClick: this.handleInput.bind(this, field.name), 
+            onClick: this.handleInput.bind(this, index), 
             "data-field-name": field.name}, 
             React.createElement("div", null, 
               "Search This"
@@ -236,13 +285,23 @@ $(document).on('ready', function(){
   var Table = React.createClass({displayName: "Table",
     render: function() {
 
+
       function sortRows(rows) {
+        var sortField = this.props.guideData.fields[this.props.sortingFieldIndex].name;
+        var sortType = this.props.guideData.fields[this.props.sortingFieldIndex].sort;
+
         return  rows.sort(function(a, b){
-          var one = $('<span>'+a[this.props.sorting.field]+'</span>').text();
-          var two = $('<span>'+b[this.props.sorting.field]+'</span>').text();
+          var one = $(
+            '<span>'+
+            a[sortField]+
+            '</span>').text();
+          var two = $(
+            '<span>'+
+            b[sortField]+
+            '</span>').text();
 
           if (one && !two) {
-            if (this.props.sorting.ascending) {
+            if (this.props.sortAscending) {
               return 1;
             } else {
               return -1;
@@ -250,7 +309,7 @@ $(document).on('ready', function(){
           }
 
           if (two && !one) {
-            if (this.props.sorting.ascending) {
+            if (this.props.sortAscending) {
               return -1;
             } else {
               return 1;
@@ -261,11 +320,11 @@ $(document).on('ready', function(){
             return 0;
           }
 
-          if (this.props.sorting.sort === 'numeric') {
+          if (sortType === 'numeric') {
 
             var oneNumber = +(one.match(/\d+/)[0]);
             var twoNumber = +(two.match(/\d+/)[0]);
-            if (this.props.sorting.ascending) {
+            if (this.props.sortAscending) {
               if (oneNumber > twoNumber) {
                 return 1;
               } else {
@@ -278,8 +337,8 @@ $(document).on('ready', function(){
                 return 1;
               }
             }
-          } else if (this.props.sorting.sort === 'alpha') {
-            if (this.props.sorting.ascending) {
+          } else if (sortType === 'alpha') {
+            if (this.props.sortAscending) {
               return two.localeCompare(one);
             } else {
               return one.localeCompare(two);
@@ -301,11 +360,13 @@ $(document).on('ready', function(){
         rowLoop: for (i = 0, l = rows.length; i<l; i++) {
           row = rows[i];
 
-          fieldLoop: for (j = 0, m = this.props.searchFields.length; j<m; j++) {
-            field = this.props.searchFields[j];
-            if (!(field.activeSearchField)) {
+          fieldLoop: for (j = 0, m = this.props.guideData.fields.length; j<m; j++) {
+
+            if (!(this.props.enabledFields[j])) {
               continue fieldLoop;
             }
+
+            field = this.props.guideData.fields[j];
 
             var text = $('<span>'+row[field.name]+'</span>').text();
             var query = this.props.searchText;
@@ -322,17 +383,20 @@ $(document).on('ready', function(){
 
           }
 
+
         }
         return result;
       };
 
-      var tableRows = [];
+      var tableRows = []; // To be used in the table
 
-      var rows = sortRows.call(this, this.props.guideData.rows);
+      var rows = this.props.guideData.rows;
 
       if (this.props.searchText) {
         rows = cullRows.call(this, rows);
       }
+
+      rows = sortRows.call(this, rows);
 
       rows.forEach(function(row){
         // Use the first field as the key, and the second if it exists
@@ -353,10 +417,12 @@ $(document).on('ready', function(){
       return(
         React.createElement("table", {className: "table table-hover table-condensed"}, 
           React.createElement(TableHeader, {
-            sorting: this.props.sorting, 
+            sortingFieldIndex: this.props.sortingFieldIndex, 
             setSorting: this.props.setSorting, 
-            searchFields: this.props.searchFields, 
-            toggleSearchField: this.props.toggleSearchField}), 
+            enabledFields: this.props.enabledFields, 
+            fields: this.props.guideData.fields, 
+            toggleSearchField: this.props.toggleSearchField, 
+            sortAscending: this.props.sortAscending}), 
           React.createElement("tbody", null, 
             tableRows
           )
@@ -367,34 +433,33 @@ $(document).on('ready', function(){
 
 
   var TableHeader = React.createClass({displayName: "TableHeader",
-    handleSortSelect: function(field, sort) {
+    handleSortSelect: function(index) {
 
-      var sorting = this.props.sorting;
-
-      if (sorting.field !== field) {
-        this.props.setSorting({field: field, ascending: false, sort: sort});
-      } else if (!sorting.ascending) {
-        this.props.setSorting({field: field, ascending: true, sort: sort});
+      if (this.props.sortingFieldIndex !== index) {
+        this.props.setSorting(index, false);
+      } else if (!this.props.sortAscending) {
+        this.props.setSorting(index, true);
       } else {
-        this.props.setSorting({field: field, ascending: false, sort: sort});
+        this.props.setSorting(index, false);
       }
 
     },
     render: function() {
       var headers = [];
 
-      this.props.searchFields.forEach(function(field){
+      this.props.fields.forEach(function(field, index){
         var sortingArrow = '';
-        if (field.name === this.props.sorting.field) {
-          sortingArrow = this.props.sorting.ascending ?
+        if (index === this.props.sortingFieldIndex) {
+          sortingArrow = this.props.sortAscending ?
             React.createElement("i", {className: "fa fa-caret-up"}) :
             React.createElement("i", {className: "fa fa-caret-down"});
         }
         headers.push(
           React.createElement("th", {
+            title: field.tip, 
             className: "clickable-header", 
             key: field.name, 
-            onClick: this.handleSortSelect.bind(this, field.name, field.sort), 
+            onClick: this.handleSortSelect.bind(this, index), 
             "data-field-name": field.name}, 
             field.name, " ", sortingArrow
           )
@@ -406,7 +471,8 @@ $(document).on('ready', function(){
         React.createElement("thead", null, 
           React.createElement("tr", null, 
             React.createElement(SearchFieldSelect, {
-              searchFields: this.props.searchFields, 
+              enabledFields: this.props.enabledFields, 
+              fields: this.props.fields, 
               toggleSearchField: this.props.toggleSearchField})
           ), 
           React.createElement("tr", null, 

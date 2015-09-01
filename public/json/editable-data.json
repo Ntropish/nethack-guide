@@ -1,0 +1,125 @@
+{
+  "monsters": {
+    "header": {
+      "title": "Monsters",
+      "source": "https://nethackwiki.com/wiki/Monster",
+      "sourceName": "nethackwiki"
+    },
+    "fields":[
+      {
+        "name": "name",
+        "width": 4,
+        "sort": "alpha",
+        "searchType": "insensitive",
+        "activeSearchField": true,
+        "tip": "Monster's name and link to their wiki page"
+      },
+      {
+        "name": "image",
+        "width": 8,
+        "sort": "none",
+        "searchType": "none",
+        "activeSearchField": true,
+        "tip": "Monster's image, if you are using tiles. You can't sort or search this field"
+      },
+      {
+        "name": "symbol",
+        "width": 8,
+        "sort": "alpha",
+        "searchType": "sensitive",
+        "activeSearchField": true,
+        "tip": "Monster's in game symbol. Searching this field is case sensitive!"
+      },
+      {
+        "name": "category",
+        "width": 8,
+        "sort": "alpha",
+        "searchType": "insensitive",
+        "activeSearchField": true,
+        "tip": "Just in case you wanted to know!"
+      }
+    ]
+  },
+  "corpses":  {
+    "header": {
+      "title": "Corpses",
+      "source": "http://runc1ble.org/nethack/corpses.html",
+      "sourceName": "runc1ble.org"
+    },
+    "fields":[
+      {
+        "name": "Name",
+        "width": "3",
+        "sort": "alpha",
+        "searchType": "insensitive",
+        "activeSearchField": true,
+        "tip": "The name of the corpse"
+      },
+      {
+        "name": "Nutrition",
+        "width": "3",
+        "sort": "numeric",
+        "searchType": "insensitive",
+        "activeSearchField": true,
+        "tip": "The amount of nutrition you get for eating the corpse. V indicates a vegetarian corpse, V! indicates a vegan one."
+      },
+      {
+        "name": "Initial effects",
+        "width": "3",
+        "sort": "alpha",
+        "searchType": "insensitive",
+        "activeSearchField": true,
+        "tip": "Effect applied upon eating the first bite"
+      },
+      {
+        "name": "Final effects",
+        "width": "3",
+        "sort": "alpha",
+        "searchType": "insensitive",
+        "activeSearchField": true,
+        "tip": "Effect that occurs upon finishing a corpse"
+      },
+      {
+        "name": "Intrinsics",
+        "width": "3",
+        "sort": "alpha",
+        "searchType": "insensitive",
+        "activeSearchField": true,
+        "tip": "Intrinsic that can be gained by eating this corpse"
+      }
+    ]
+  },
+  "commands": {
+    "header": {
+      "title": "Commands",
+      "sourceName": "neuzd.org",
+      "source": "http://www.neuzd.org/games/netHack_keys.htm"
+    },
+    "fields":[
+          {
+            "name": "Command",
+            "width": "3",
+            "sort": "alpha",
+            "searchType": "insensitive",
+            "activeSearchField": true,
+            "tip": "M-<some key> means use the meta key, this is probably alt. Some commands, the ones that are just words, can be executed by entering #<some command>"
+          },
+          {
+            "name": "Name",
+            "width": "3",
+            "sort": "alpha",
+            "searchType": "insensitive",
+            "activeSearchField": true,
+            "tip": "The name of the command"
+          },
+          {
+            "name": "Description",
+            "width": "3",
+            "sort": "alpha",
+            "searchType": "insensitive",
+            "activeSearchField": true,
+            "tip": "A command dexcription, searching these is useful if you don't know the command!"
+          }
+        ]
+  }
+}
